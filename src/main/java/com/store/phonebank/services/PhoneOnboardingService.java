@@ -55,8 +55,6 @@ public class PhoneOnboardingService {
         phoneEntity.setModelCode(phoneDto.getModelCode());
         phoneEntity.setPhoneCount(phoneDto.getPhoneCount());
         phoneEntity.setAvailableCount(phoneDto.getAvailableCount());
-        phoneEntity.setBookedBy(phoneDto.getBookedBy());
-        phoneEntity.setBookingTime(phoneDto.getBookingTime());
         return phoneEntity;
     }
 
@@ -68,8 +66,6 @@ public class PhoneOnboardingService {
         phoneDto.setModelCode(phoneEntity.getModelCode());
         phoneDto.setPhoneCount(phoneEntity.getPhoneCount());
         phoneDto.setAvailableCount(phoneEntity.getAvailableCount());
-        phoneDto.setBookedBy(phoneEntity.getBookedBy());
-        phoneDto.setBookingTime(phoneEntity.getBookingTime());
         return phoneDto;
     }
 }

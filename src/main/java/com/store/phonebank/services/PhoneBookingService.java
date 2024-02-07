@@ -41,8 +41,6 @@ public class PhoneBookingService {
                 .filter(phone -> phone.getBookedBy().equals(phoneBookingRequestDto.getUserName()))
                 .flatMap(phone -> {
                     phone.setAvailableCount(phone.getAvailableCount() + 1);
-                    phone.setBookedBy(null);
-                    phone.setBookingTime(null);
                     return this.phoneRepository.save(phone);
                 })
                 .map(this::toDto)
