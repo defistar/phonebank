@@ -1,10 +1,20 @@
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/mytestdatabase
-    username: myuser
-    password: mypassword
-    driver-class-name: com.mysql.cj.jdbc.Driver
+  r2dbc:
+    initialization-mode: always
+    schema: classpath:phone-bank.sql
+    url: r2dbc:postgresql://localhost:5435/phonebank
+    username: admin
+    password: password
+    driver-class-name: org.postgresql.Driver
   jpa:
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+seed:
+  file-path: classpath:Phone-Data.csv
+
+logging:
+  level:
+    com.store.phonebank: INFO
