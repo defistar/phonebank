@@ -63,10 +63,6 @@ public class PhoneEntity implements Persistable<String> {
         return id == null;
     }
 
-    public PhoneEntity setAsNew(){
-        return this;
-    }
-
     @PrePersist
     public void prePersist() {
         if (id == null) {

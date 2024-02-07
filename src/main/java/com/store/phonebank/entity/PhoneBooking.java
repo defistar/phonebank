@@ -1,5 +1,6 @@
 package com.store.phonebank.entity;
 
+import jakarta.persistence.PrePersist;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
@@ -8,6 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import javax.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -32,4 +34,11 @@ public class PhoneBooking {
 
     @Column("returned")
     private boolean returned = false;
+
+    @PrePersist
+    public void prePersist() {
+        if (id == null) {
+            id = new UUID(0, 0).toString();
+        }
+    }
 }
