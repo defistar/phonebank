@@ -71,7 +71,6 @@ public class PhoneBookingController {
             @ApiResponse(code = 500, message = "Internal server error")
     })
     public Mono<ResponseEntity<PhoneAvailabilityResponseDto>> checkAvailability(@RequestParam String brandName, @RequestParam String modelCode) {
-        System.out.println("Booking phone availablity request: " + brandName + " " + modelCode);
         return phoneBookingQueryService.checkPhoneAvailability(brandName, modelCode)
                 .map(response -> new ResponseEntity<>(response, HttpStatus.OK))
                 .onErrorResume(e -> Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)));

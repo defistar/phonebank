@@ -22,14 +22,6 @@ public class PhoneBookingQueryService {
     }
 
     public Mono<PhoneAvailabilityResponseDto> checkPhoneAvailability(String brandName, String modelCode) {
-        var resposne = this.phoneRepository.findByBrandNameAndModelCode(brandName, modelCode)
-                .map(phoneEntity -> {
-                    System.out.println("Response: " + phoneEntity);
-                    return phoneEntity;
-                }).subscribe();
-
-        System.out.println("Response: " + resposne);
-
         return this.phoneRepository.findByBrandNameAndModelCode(brandName, modelCode)
                 .flatMap(phoneEntity -> {
                     PhoneAvailabilityResponseDto responseDto = new PhoneAvailabilityResponseDto();
@@ -46,7 +38,6 @@ public class PhoneBookingQueryService {
                             })
                             .thenReturn(responseDto);
                 })
-                .doOnNext(responseDto -> System.out.println("Response: " + responseDto))
                 .onErrorResume(e -> {
                     e.printStackTrace();
                     return Mono.just(new PhoneAvailabilityResponseDto());
