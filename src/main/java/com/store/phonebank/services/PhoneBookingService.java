@@ -61,6 +61,7 @@ public class PhoneBookingService {
 
     private PhoneBookingResponseDto toBookingResponseDto(PhoneBookingEntity phoneBooking, PhoneEntity phoneEntity) {
         PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto();
+        responseDto.setPhoneBookingId(phoneBooking.getId());
         responseDto.setPhoneEntityId(phoneBooking.getPhoneEntityId());
         responseDto.setBrandName(phoneEntity.getBrandName());
         responseDto.setModelCode(phoneEntity.getModelCode());
@@ -72,6 +73,9 @@ public class PhoneBookingService {
 
     public Mono<PhoneReturnResponseDto> returnBookedPhone(String bookingId) {
         return this.phoneBookingRepository.findById(bookingId)
+                .switchIfEmpty(Mono.error(new RuntimeException("Phone booking with id " + bookingId + " does not exist")))
+                .filter(phoneBookingEntity -> !phoneBookingEntity.isReturned())
+                .switchIfEmpty(Mono.error(new RuntimeException("Phone booking with id " + bookingId + " has already been returned")))
                 .flatMap(phoneBookingEntity -> {
                     phoneBookingEntity.setReturned(true);
                     phoneBookingEntity.setUpdatedAt(LocalDateTime.now());
@@ -85,13 +89,17 @@ public class PhoneBookingService {
                 })
                 .onErrorResume(DataAccessException.class, ex -> {
                     ex.printStackTrace();
-                    return Mono.just(new PhoneReturnResponseDto());
+                    return Mono.just(new PhoneReturnResponseDto(bookingId, "Failed", ex.getMessage()));
                 })
-                .switchIfEmpty(Mono.just(new PhoneReturnResponseDto()));
+                .onErrorResume(RuntimeException.class, ex -> {
+                    ex.printStackTrace();
+                    return Mono.just(new PhoneReturnResponseDto(bookingId, "Failed", ex.getMessage()));
+                });
     }
 
     private PhoneReturnResponseDto toReturnResponseDto(PhoneEntity phoneEntity, PhoneBookingEntity phoneBooking) {
         PhoneReturnResponseDto responseDto = new PhoneReturnResponseDto();
+        responseDto.setPhoneBookingId(phoneBooking.getId());
         responseDto.setPhoneEntityId(phoneEntity.getId());
         responseDto.setBrandName(phoneEntity.getBrandName());
         responseDto.setModelCode(phoneEntity.getModelCode());

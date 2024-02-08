@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString
 public class PhoneBookingResponseDto {
+    private String phoneBookingId;
     private String phoneEntityId;
     private String brandName;
     private String modelCode;

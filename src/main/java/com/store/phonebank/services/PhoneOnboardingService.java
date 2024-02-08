@@ -22,29 +22,21 @@ public class PhoneOnboardingService {
     }
 
     public Mono<PhoneDto> savePhone(PhoneDto phoneDto) {
-        LOGGER.info("Saving phone: {}", phoneDto);
         PhoneEntity phoneEntity = toEntity(phoneDto);
-        if (phoneDto.getId() != null) {
-            return this.phoneRepository.findById(phoneDto.getId())
-                    .flatMap(existingPhone -> {
-                        phoneEntity.setId(existingPhone.getId()); // Ensure the ID is set for existing entities
-                        return this.phoneRepository.save(phoneEntity);
-                    })
-                    .switchIfEmpty(Mono.defer(() -> {
-                        phoneEntity.setId(UUID.randomUUID().toString()); // Set ID to a new UUID for new entities
-                        return this.phoneRepository.insert(phoneEntity);
-                    }))
-                    .map(this::toDto);
-        } else {
-            return Mono.defer(() -> {
-                        phoneEntity.setId(UUID.randomUUID().toString()); // Set ID to a new UUID for new entities
-                        if (phoneEntity.getCreatedAt() == null) {
-                            phoneEntity.setCreatedAt(LocalDateTime.now());
-                        }
-                        return this.phoneRepository.insert(phoneEntity);
-                    })
-                    .map(this::toDto);
-        }
+
+        return this.phoneRepository.findByBrandNameAndModelCode(phoneDto.getBrandName(), phoneDto.getModelCode())
+                .flatMap(existingPhone -> {
+                    phoneEntity.setId(existingPhone.getId()); // Ensure the ID is set for existing entities
+                    return this.phoneRepository.save(phoneEntity);
+                })
+                .switchIfEmpty(Mono.defer(() -> {
+                    phoneEntity.setId(UUID.randomUUID().toString()); // Set ID to a new UUID for new entities
+                    if (phoneEntity.getCreatedAt() == null) {
+                        phoneEntity.setCreatedAt(LocalDateTime.now());
+                    }
+                    return this.phoneRepository.insert(phoneEntity);
+                }))
+                .map(this::toDto);
     }
 
     private PhoneEntity toEntity(PhoneDto phoneDto) {

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import java.io.InputStreamReader;
 import java.util.stream.Stream;
 
 @Service
-public class PhoneOnboardingSeeder {
+public class PhoneOnboardingSeeder implements CommandLineRunner {
 
     private final PhoneOnboardingService phoneOnboardingService;
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoneOnboardingSeeder.class);
@@ -26,7 +27,7 @@ public class PhoneOnboardingSeeder {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    @Value("${seed.file-path}")
+    @Value("${seed.phone-datafile-path}")
     private String seedFilePath;
 
     public PhoneOnboardingSeeder(PhoneOnboardingService phoneOnboardingService) {
@@ -42,14 +43,13 @@ public class PhoneOnboardingSeeder {
         }
     }
 
-    public Mono<Long> run() {
+    public Mono<Long> runSeed() {
         LOGGER.info("Seeding phone data from file: {}", seedFilePath);
         Resource resource = resourceLoader.getResource(seedFilePath);
         try {
             Stream<String> lines = new BufferedReader(new InputStreamReader(resource.getInputStream())).lines();
             return Flux.defer(() -> Flux.fromStream(lines.skip(1))) // Skip the first line (header)
                     .map(this::lineToPhoneDto)
-                    .doOnNext(phoneDto -> LOGGER.info("Onboarding phone: {}", phoneDto))
                     .flatMap(phoneDto -> phoneOnboardingService.savePhone(phoneDto).thenReturn(1L))
                     .doOnError(e -> LOGGER.error("Error while saving phone data", e))
                     .onErrorResume(e -> {
@@ -62,6 +62,11 @@ public class PhoneOnboardingSeeder {
             LOGGER.error("Error reading seed file", e);
             throw new RuntimeException("Error reading seed file", e);
         }
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        runSeed().subscribe(count -> LOGGER.info("Inserted {} records", count));
     }
 
     private PhoneDto lineToPhoneDto(String line) {

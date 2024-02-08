@@ -15,6 +15,6 @@ public class PhoneAvailabilityResponseDto {
     private String brandName;
     private String modelCode;
     private String availability;
-    private LocalDateTime whenBooked;
-    private String whoBooked;
+    private LocalDateTime whenLastBooked;
+    private String lastBookedUser;
 }

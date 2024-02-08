@@ -27,8 +27,8 @@ public class PhoneBookingQueryService {
                     return this.phoneBookingRepository.findTopByPhoneEntityIdAndIsReturnedOrderByBookingTimeDesc(phoneEntity.getId(), false)
                             .doOnNext(phoneBooking -> {
                                 if (phoneBooking != null) {
-                                    responseDto.setWhenBooked(phoneBooking.getBookingTime());
-                                    responseDto.setWhoBooked(phoneBooking.getUserName());
+                                    responseDto.setWhenLastBooked(phoneBooking.getBookingTime());
+                                    responseDto.setLastBookedUser(phoneBooking.getUserName());
                                 }
                             })
                             .thenReturn(responseDto);

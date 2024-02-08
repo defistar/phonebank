@@ -50,7 +50,7 @@ public class PhoneOnboardingController {
             @ApiResponse(code = 500, message = "Server error while seeding the phone data")
     })
     public Mono<ResponseEntity<Long>> seedPhoneData() {
-        return phoneOnboardingSeeder.run()
+        return phoneOnboardingSeeder.runSeed()
                 .map(ResponseEntity::ok)
                 .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(-1L));
     }
