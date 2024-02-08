@@ -1,15 +1,10 @@
 package com.store.phonebank.services;
 
-import com.store.phonebank.dto.*;
-import com.store.phonebank.entity.PhoneBookingEntity;
-import com.store.phonebank.entity.PhoneEntity;
+import com.store.phonebank.dto.PhoneAvailabilityResponseDto;
 import com.store.phonebank.repository.PhoneBookingRepository;
 import com.store.phonebank.repository.PhoneRepository;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
 
 @Service
 public class PhoneBookingQueryService {

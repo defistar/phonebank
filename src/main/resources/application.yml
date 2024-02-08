@@ -18,3 +18,7 @@ seed:
 logging:
   level:
     com.store.phonebank: INFO
+
+fonoapi:
+  url: https://fonoapi.freshpixl.com/v1/getdevice
+  token: your_token_here

@@ -1,23 +1,20 @@
 package com.store.phonebank.services;
 
+import com.store.phonebank.dto.PhoneDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.store.phonebank.dto.PhoneDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 @Service
