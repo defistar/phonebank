@@ -53,14 +53,14 @@ public class PhoneOnboardingSeeder {
             return Flux.defer(() -> Flux.fromStream(lines.skip(1))) // Skip the first line (header)
                     .map(this::lineToPhoneDto)
                     .doOnNext(phoneDto -> LOGGER.info("Onboarding phone: {}", phoneDto))
-                    .flatMap(phoneOnboardingService::savePhone)
+                    .flatMap(phoneDto -> phoneOnboardingService.savePhone(phoneDto).thenReturn(1L))
                     .doOnError(e -> LOGGER.error("Error while saving phone data", e))
                     .onErrorResume(e -> {
                         LOGGER.error("Error occurred during seed loading, skipping this record", e);
-                        return Mono.empty();
+                        return Mono.just(0L);
                     })
                     .retry(3)
-                    .count();
+                    .reduce(0L, Long::sum);
         } catch (IOException e) {
             LOGGER.error("Error reading seed file", e);
             throw new RuntimeException("Error reading seed file", e);

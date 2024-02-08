@@ -54,7 +54,7 @@ public class PhoneOnboardingService {
         phoneEntity.setModelName(phoneDto.getModelName());
         phoneEntity.setModelCode(phoneDto.getModelCode());
         phoneEntity.setPhoneCount(phoneDto.getPhoneCount());
-        phoneEntity.setAvailableCount(phoneDto.getAvailableCount());
+        phoneEntity.setAvailableCount(phoneDto.getPhoneCount());
         return phoneEntity;
     }
 

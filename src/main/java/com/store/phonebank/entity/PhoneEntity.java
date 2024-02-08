@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @EqualsAndHashCode
 @ToString
 @Data
-@Table("phone_entity")
+@Table("phone")
 public class PhoneEntity implements Persistable<String> {
     @Id
     @Column("id")
@@ -48,7 +49,8 @@ public class PhoneEntity implements Persistable<String> {
     @Column("available_count")
     private int availableCount;
 
-    private List<PhoneBooking> bookings = new ArrayList<>();
+    @Transient
+    private List<PhoneBookingEntity> bookings = new ArrayList<>();
 
     @CreatedDate
     @Column("created_at")

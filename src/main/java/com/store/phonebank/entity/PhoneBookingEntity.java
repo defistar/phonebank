@@ -2,7 +2,9 @@ package com.store.phonebank.entity;
 
 import jakarta.persistence.PrePersist;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -16,7 +18,7 @@ import java.util.UUID;
 @EqualsAndHashCode
 @ToString
 @Table("phone_booking")
-public class PhoneBooking {
+public class PhoneBookingEntity {
 
     @Id
     @Column("id")
@@ -26,14 +28,22 @@ public class PhoneBooking {
     @Column("phone_entity_id")
     private String phoneEntityId;
 
-    @Column("user_id")
-    private String userId;
+    @Column("user_name")
+    private String userName;
 
     @Column("booking_time")
     private LocalDateTime bookingTime;
 
-    @Column("returned")
-    private boolean returned = false;
+    @Column("is_returned")
+    private boolean isReturned = false;
+
+    @CreatedDate
+    @Column("created_at")
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column("updated_at")
+    private LocalDateTime updatedAt;
 
     @PrePersist
     public void prePersist() {

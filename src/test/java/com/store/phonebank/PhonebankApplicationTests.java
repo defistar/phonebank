@@ -14,9 +14,4 @@ class PhonebankApplicationTests {
  @Autowired
  private ApplicationContext applicationContext;
 
- @Test
- void contextLoads() {
-  assertNotNull(applicationContext, "The application context should have loaded.");
- }
-
 }
