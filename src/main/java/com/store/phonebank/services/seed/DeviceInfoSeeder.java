@@ -1,4 +1,4 @@
-package com.store.phonebank.services;
+package com.store.phonebank.services.seed;
 
 import com.store.phonebank.dto.DeviceInfoDto;
 import com.store.phonebank.entity.DeviceInfoEntity;

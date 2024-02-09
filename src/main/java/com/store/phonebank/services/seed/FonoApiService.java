@@ -1,4 +1,4 @@
-package com.store.phonebank.services;
+package com.store.phonebank.services.seed;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.phonebank.dto.FonoDeviceInfoDto;

@@ -1,4 +1,4 @@
-package com.store.phonebank.services;
+package com.store.phonebank.services.booking;
 
 import com.store.phonebank.dto.PhoneAvailabilityResponseDto;
 import com.store.phonebank.repository.PhoneBookingRepository;

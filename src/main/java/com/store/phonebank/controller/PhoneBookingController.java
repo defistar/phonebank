@@ -4,8 +4,8 @@ import com.store.phonebank.dto.PhoneAvailabilityResponseDto;
 import com.store.phonebank.dto.PhoneBookingRequestDto;
 import com.store.phonebank.dto.PhoneBookingResponseDto;
 import com.store.phonebank.dto.PhoneReturnResponseDto;
-import com.store.phonebank.services.PhoneBookingQueryService;
-import com.store.phonebank.services.PhoneBookingService;
+import com.store.phonebank.services.booking.PhoneBookingQueryService;
+import com.store.phonebank.services.booking.PhoneBookingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/phone-booking/")
+@RequestMapping("/api/v1/phone-booking")
 @Api(value = "Phone Booking", tags = {"Phone Booking"})
 public class PhoneBookingController {
 

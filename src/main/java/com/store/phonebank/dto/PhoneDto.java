@@ -31,6 +31,8 @@ public class PhoneDto {
     @NotNull
     private int availableCount;
 
+    private DeviceInfoDto deviceInfo;
+
     private String bookedBy;
 
     private LocalDateTime bookingTime;

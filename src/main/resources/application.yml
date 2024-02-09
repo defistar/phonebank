@@ -16,6 +16,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  cache:
+    type: simple
 seed:
   phone-data-file-path: classpath:Phone-Data.csv
   device-info-file-path: classpath:device-info.csv
