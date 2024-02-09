@@ -4,8 +4,9 @@ import com.store.phonebank.dto.PhoneAvailabilityResponseDto;
 import com.store.phonebank.dto.PhoneBookingRequestDto;
 import com.store.phonebank.dto.PhoneBookingResponseDto;
 import com.store.phonebank.dto.PhoneReturnResponseDto;
-import com.store.phonebank.services.booking.PhoneBookingQueryService;
-import com.store.phonebank.services.booking.PhoneBookingService;
+import com.store.phonebank.services.booking.IPhoneBookingQueryService;
+import com.store.phonebank.services.booking.IPhoneBookingService;
+import com.store.phonebank.services.booking.IPhoneReturnService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -20,11 +21,15 @@ import reactor.core.publisher.Mono;
 @Api(value = "Phone Booking", tags = {"Phone Booking"})
 public class PhoneBookingController {
 
-    private final PhoneBookingService phoneBookingService;
-    private final PhoneBookingQueryService phoneBookingQueryService;
+    private final IPhoneBookingService phoneBookingService;
 
-    public PhoneBookingController(PhoneBookingService phoneBookingService, PhoneBookingQueryService phoneBookingQueryService) {
+    private final IPhoneReturnService phoneReturnService;
+
+    private final IPhoneBookingQueryService phoneBookingQueryService;
+
+    public PhoneBookingController(IPhoneBookingService phoneBookingService, IPhoneReturnService phoneReturnService, IPhoneBookingQueryService phoneBookingQueryService) {
         this.phoneBookingService = phoneBookingService;
+        this.phoneReturnService = phoneReturnService;
         this.phoneBookingQueryService = phoneBookingQueryService;
     }
 
@@ -43,7 +48,6 @@ public class PhoneBookingController {
                 .build();
 
         return phoneBookingService.bookPhone(phoneBookingRequestDto)
-                .map(response -> new ResponseEntity<>(response, HttpStatus.OK))
                 .onErrorResume(e -> Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)));
     }
 
@@ -55,8 +59,7 @@ public class PhoneBookingController {
             @ApiResponse(code = 500, message = "Internal server error")
     })
     public Mono<ResponseEntity<PhoneReturnResponseDto>> returnPhone(@RequestParam String bookingId) {
-        return phoneBookingService.returnBookedPhone(bookingId)
-                .map(response -> new ResponseEntity<>(response, HttpStatus.OK))
+        return phoneReturnService.returnBookedPhone(bookingId)
                 .onErrorResume(e -> Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)));
     }
 

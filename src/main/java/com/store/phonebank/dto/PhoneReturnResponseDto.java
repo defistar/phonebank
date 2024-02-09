@@ -16,8 +16,8 @@ public class PhoneReturnResponseDto {
     private String brandName;
     private String modelCode;
     private String availability;
-    private LocalDateTime whenBooked;
-    private String whoBooked;
+    private LocalDateTime lastBookedAt;
+    private String lastBookedUser;
     private boolean returned;
     private String responseCode;
     private String errorMessage;

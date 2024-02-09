@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-public class PhoneBookingQueryService {
+public class PhoneBookingQueryService implements IPhoneBookingQueryService {
     private final PhoneRepository phoneRepository;
     private final PhoneBookingRepository phoneBookingRepository;
 

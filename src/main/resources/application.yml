@@ -24,7 +24,7 @@ seed:
 
 logging:
   level:
-    com.store.phonebank: INFO
+    com.store.phonebank: DEBUG
 
 fonoapi:
   url: https://fonoapi.freshpixl.com/v1/getdevice

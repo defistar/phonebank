@@ -1,8 +1,8 @@
 package com.store.phonebank.services.booking;
 
+import com.store.phonebank.config.BookingStatus;
 import com.store.phonebank.dto.PhoneBookingRequestDto;
 import com.store.phonebank.dto.PhoneBookingResponseDto;
-import com.store.phonebank.dto.PhoneReturnResponseDto;
 import com.store.phonebank.entity.PhoneBookingEntity;
 import com.store.phonebank.entity.PhoneEntity;
 import com.store.phonebank.repository.PhoneBookingRepository;
@@ -10,55 +10,102 @@ import com.store.phonebank.repository.PhoneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-public class PhoneBookingService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PhoneBookingService.class);
+public class PhoneBookingService implements IPhoneBookingService {
+    private static final Logger logger = LoggerFactory.getLogger(PhoneBookingService.class);
 
     private final PhoneRepository phoneRepository;
     private final PhoneBookingRepository phoneBookingRepository;
 
-    public PhoneBookingService(PhoneRepository phoneRepository, PhoneBookingRepository phoneBookingRepository) {
+    private final TransactionalOperator transactionalOperator;
+
+    public PhoneBookingService(PhoneRepository phoneRepository, PhoneBookingRepository phoneBookingRepository, TransactionalOperator transactionalOperator) {
         this.phoneRepository = phoneRepository;
         this.phoneBookingRepository = phoneBookingRepository;
+        this.transactionalOperator = transactionalOperator;
     }
 
-
-    public Mono<PhoneBookingResponseDto> bookPhone(PhoneBookingRequestDto phoneBookingRequestDto) {
+    public Mono<ResponseEntity<PhoneBookingResponseDto>> bookPhone(PhoneBookingRequestDto phoneBookingRequestDto) {
         return this.phoneRepository.findByBrandNameAndModelCode(phoneBookingRequestDto.getBrandName(), phoneBookingRequestDto.getModelCode())
-                .filter(phone -> phone.getAvailableCount() > 0)
-                .flatMap(phone -> {
-                    phone.setAvailableCount(phone.getAvailableCount() - 1);
-                    return this.phoneRepository.save(phone);
-                })
-                .flatMap(phone -> {
-                    PhoneBookingEntity phoneBooking = new PhoneBookingEntity();
-                    phoneBooking.setId(UUID.randomUUID().toString()); // Set ID to a new UUID for new entities
-                    phoneBooking.setCreatedAt(LocalDateTime.now());
-                    phoneBooking.setPhoneEntityId(phone.getId());
-                    phoneBooking.setUserName(phoneBookingRequestDto.getUserName());
-                    phoneBooking.setBookingTime(LocalDateTime.now());
-                    return this.phoneBookingRepository.insert(phoneBooking)
-                            .doOnSuccess(phoneBookingSaved -> {
-                                if (phoneBookingSaved == null) {
-                                    LOGGER.info("insert completed without emitting an item");
-                                } else {
-                                    LOGGER.info("insert completed and emitted an item");
-                                }
-                            })
-                            .doOnError(e -> LOGGER.info("Error during insert: " + e.getMessage()))
-                            .map(phoneBookingSaved -> this.toBookingResponseDto(phoneBookingSaved, phone));
-                })
-                .onErrorResume(DataAccessException.class, ex -> {
-                    ex.printStackTrace();
-                    return Mono.just(new PhoneBookingResponseDto());
-                })
-                .switchIfEmpty(Mono.just(new PhoneBookingResponseDto()));
+                .flatMap(phone -> processPhoneBooking(phone, phoneBookingRequestDto))
+                .switchIfEmpty(handleEmptyPhone(phoneBookingRequestDto))
+                .onErrorResume(DataAccessException.class, ex -> handleDataAccessException(ex, phoneBookingRequestDto))
+                .onErrorResume(RuntimeException.class, ex -> handleRuntimeException(ex, phoneBookingRequestDto))
+                .as(transactionalOperator::transactional)
+                .map(this::createResponseEntity);
+    }
+
+    private Mono<PhoneBookingResponseDto> processPhoneBooking(PhoneEntity phone, PhoneBookingRequestDto phoneBookingRequestDto) {
+        if (phone.getAvailableCount() > 0) {
+            phone.setAvailableCount(phone.getAvailableCount() - 1);
+            return this.phoneRepository.save(phone)
+                    .flatMap(updatedPhone -> {
+                        PhoneBookingEntity phoneBooking = new PhoneBookingEntity();
+                        phoneBooking.setId(UUID.randomUUID().toString());
+                        phoneBooking.setCreatedAt(LocalDateTime.now());
+                        phoneBooking.setPhoneEntityId(updatedPhone.getId());
+                        phoneBooking.setUserName(phoneBookingRequestDto.getUserName());
+                        phoneBooking.setBookingTime(LocalDateTime.now());
+                        return this.phoneBookingRepository.insert(phoneBooking)
+                                .flatMap(phoneBookingSaved -> {
+                                    PhoneBookingResponseDto responseDto = this.toBookingResponseDto(phoneBookingSaved, updatedPhone);
+                                    responseDto.setBookingStatus(BookingStatus.SUCCESSFUL);
+                                    return Mono.just(responseDto);
+                                });
+                    });
+        } else {
+            return this.phoneBookingRepository.findTopByPhoneEntityIdAndIsReturnedOrderByBookingTimeDesc(phone.getId(), false)
+                    .map(lastBooking -> {
+                        PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto();
+                        responseDto.setPhoneEntityId(phone.getId());
+                        responseDto.setBrandName(phone.getBrandName());
+                        responseDto.setModelCode(phone.getModelCode());
+                        responseDto.setAvailableCount(phone.getAvailableCount());
+                        responseDto.setPhoneCount(phone.getPhoneCount());
+                        responseDto.setLastBookedAt(lastBooking.getBookingTime());
+                        responseDto.setLastBookedUser(lastBooking.getUserName());
+                        responseDto.setBookingStatus(BookingStatus.FAILED_PHONE_NOT_AVAILABLE);
+                        return responseDto;
+                    });
+        }
+
+    }
+
+    private Mono<PhoneBookingResponseDto> handleEmptyPhone(PhoneBookingRequestDto phoneBookingRequestDto) {
+        PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto();
+        responseDto.setBrandName(phoneBookingRequestDto.getBrandName());
+        responseDto.setModelCode(phoneBookingRequestDto.getModelCode());
+        responseDto.setBookingStatus(BookingStatus.INVALID_PHONE);
+        return Mono.just(responseDto);
+    }
+
+    private Mono<PhoneBookingResponseDto> handleDataAccessException(DataAccessException ex, PhoneBookingRequestDto phoneBookingRequestDto) {
+        PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto(phoneBookingRequestDto.getBrandName(), phoneBookingRequestDto.getModelCode(), "Failed", ex.getMessage());
+        return Mono.just(responseDto);
+    }
+
+    private Mono<PhoneBookingResponseDto> handleRuntimeException(RuntimeException ex, PhoneBookingRequestDto phoneBookingRequestDto) {
+        PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto(phoneBookingRequestDto.getBrandName(), phoneBookingRequestDto.getModelCode(), "Failed", ex.getMessage());
+        return Mono.just(responseDto);
+    }
+
+    private ResponseEntity<PhoneBookingResponseDto> createResponseEntity(PhoneBookingResponseDto responseDto) {
+        if (responseDto.getBookingStatus() == BookingStatus.SUCCESSFUL) {
+            return ResponseEntity.ok(responseDto);
+        } else if (responseDto.getBookingStatus() == BookingStatus.INVALID_PHONE) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+        }
     }
 
     private PhoneBookingResponseDto toBookingResponseDto(PhoneBookingEntity phoneBooking, PhoneEntity phoneEntity) {
@@ -67,48 +114,10 @@ public class PhoneBookingService {
         responseDto.setPhoneEntityId(phoneBooking.getPhoneEntityId());
         responseDto.setBrandName(phoneEntity.getBrandName());
         responseDto.setModelCode(phoneEntity.getModelCode());
-        responseDto.setAvailability(phoneEntity.getAvailableCount() > 0 ? "Yes" : "No");
-        responseDto.setWhenBooked(phoneBooking.getBookingTime());
-        responseDto.setWhoBooked(phoneBooking.getUserName());
-        return responseDto;
-    }
-
-    public Mono<PhoneReturnResponseDto> returnBookedPhone(String bookingId) {
-        return this.phoneBookingRepository.findById(bookingId)
-                .switchIfEmpty(Mono.error(new RuntimeException("Phone booking with id " + bookingId + " does not exist")))
-                .filter(phoneBookingEntity -> !phoneBookingEntity.isReturned())
-                .switchIfEmpty(Mono.error(new RuntimeException("Phone booking with id " + bookingId + " has already been returned")))
-                .flatMap(phoneBookingEntity -> {
-                    phoneBookingEntity.setReturned(true);
-                    phoneBookingEntity.setUpdatedAt(LocalDateTime.now());
-                    return this.phoneBookingRepository.save(phoneBookingEntity)
-                            .flatMap(updatedPhoneBooking -> this.phoneRepository.findById(updatedPhoneBooking.getPhoneEntityId())
-                                    .flatMap(phone -> {
-                                        phone.setAvailableCount(phone.getAvailableCount() + 1);
-                                        return this.phoneRepository.save(phone)
-                                                .map(updatedPhone -> this.toReturnResponseDto(updatedPhone, updatedPhoneBooking));
-                                    }));
-                })
-                .onErrorResume(DataAccessException.class, ex -> {
-                    ex.printStackTrace();
-                    return Mono.just(new PhoneReturnResponseDto(bookingId, "Failed", ex.getMessage()));
-                })
-                .onErrorResume(RuntimeException.class, ex -> {
-                    ex.printStackTrace();
-                    return Mono.just(new PhoneReturnResponseDto(bookingId, "Failed", ex.getMessage()));
-                });
-    }
-
-    private PhoneReturnResponseDto toReturnResponseDto(PhoneEntity phoneEntity, PhoneBookingEntity phoneBooking) {
-        PhoneReturnResponseDto responseDto = new PhoneReturnResponseDto();
-        responseDto.setPhoneBookingId(phoneBooking.getId());
-        responseDto.setPhoneEntityId(phoneEntity.getId());
-        responseDto.setBrandName(phoneEntity.getBrandName());
-        responseDto.setModelCode(phoneEntity.getModelCode());
-        responseDto.setAvailability(phoneEntity.getAvailableCount() > 0 ? "Yes" : "No");
-        responseDto.setWhenBooked(phoneBooking.getBookingTime());
-        responseDto.setWhoBooked(phoneBooking.getUserName());
-        responseDto.setReturned(phoneBooking.isReturned());
+        responseDto.setAvailableCount(phoneEntity.getAvailableCount());
+        responseDto.setPhoneCount(phoneEntity.getPhoneCount());
+        responseDto.setLastBookedAt(phoneBooking.getBookingTime());
+        responseDto.setLastBookedUser(phoneBooking.getUserName());
         return responseDto;
     }
 }
