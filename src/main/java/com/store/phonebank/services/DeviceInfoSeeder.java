@@ -1,10 +1,11 @@
 package com.store.phonebank.services;
 
 import com.store.phonebank.dto.DeviceInfoDto;
-import com.store.phonebank.dto.PhoneDto;
 import com.store.phonebank.entity.DeviceInfoEntity;
-import com.store.phonebank.entity.PhoneEntity;
 import com.store.phonebank.repository.DeviceInfoRepository;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +23,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 
 @Service
 public class DeviceInfoSeeder implements CommandLineRunner {
 
-    private final DeviceInfoRepository deviceInfoRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(DeviceInfoSeeder.class);
-
+    private final DeviceInfoRepository deviceInfoRepository;
     @Autowired
     private ResourceLoader resourceLoader;
 

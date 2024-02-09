@@ -1,6 +1,5 @@
 package com.store.phonebank.entity;
 
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

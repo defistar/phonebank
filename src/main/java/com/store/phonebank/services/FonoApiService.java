@@ -2,15 +2,15 @@ package com.store.phonebank.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.store.phonebank.dto.FonoDeviceInfoDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class FonoApiService {

@@ -21,9 +21,8 @@ import java.util.stream.Stream;
 @Service
 public class PhoneOnboardingSeeder implements CommandLineRunner {
 
-    private final PhoneOnboardingService phoneOnboardingService;
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoneOnboardingSeeder.class);
-
+    private final PhoneOnboardingService phoneOnboardingService;
     @Autowired
     private ResourceLoader resourceLoader;
 

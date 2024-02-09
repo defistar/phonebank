@@ -1,7 +1,5 @@
 package com.store.phonebank.entity;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.PrePersist;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,7 +11,6 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Getter

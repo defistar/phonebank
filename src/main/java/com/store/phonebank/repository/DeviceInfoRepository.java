@@ -1,7 +1,6 @@
 package com.store.phonebank.repository;
 
 import com.store.phonebank.entity.DeviceInfoEntity;
-import com.store.phonebank.entity.PhoneEntity;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
