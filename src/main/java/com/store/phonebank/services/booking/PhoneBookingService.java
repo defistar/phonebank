@@ -66,7 +66,7 @@ public class PhoneBookingService implements IPhoneBookingService {
                     });
         } else {
             logger.info("about to query phonebooking for phone with id: " + phone.getId());
-            return this.phoneBookingRepository.findTopByPhoneEntityIdAndIsReturnedOrderByBookingTimeDesc(""+phone.getId(), false)
+            return this.phoneBookingRepository.findTopByPhoneEntityIdAndIsReturnedOrderByBookingTimeDesc(phone.getId(), false)
                     .map(lastBooking -> {
                         PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto();
                         responseDto.setPhoneEntityId(phone.getId());

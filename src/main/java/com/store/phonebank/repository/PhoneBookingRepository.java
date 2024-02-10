@@ -11,8 +11,6 @@ import java.util.UUID;
 @Repository
 public interface PhoneBookingRepository extends ReactiveCrudRepository<PhoneBookingEntity, UUID> {
 
-    Mono<PhoneBookingEntity> findTopByPhoneEntityIdAndIsReturnedOrderByBookingTimeDesc(String phoneEntityId, boolean isReturned);
-
     Mono<PhoneBookingEntity> findTopByPhoneEntityIdAndIsReturnedOrderByBookingTimeDesc(UUID phoneEntityId, boolean isReturned);
 
     Mono<PhoneBookingEntity> findTopByPhoneEntityIdAndIsReturnedFalseOrderByBookingTimeDesc(UUID phoneEntityId);
