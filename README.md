@@ -135,6 +135,42 @@ EXTENSION IF NOT EXISTS "uuid-ossp";
 - The application runs on port 8080
 - The application has the following endpoints
 
-```shell
-GET /api/v1/phones
-GET /api/v1/phones/{id}
+1. Book Phone
+
+http://localhost:8080/api/v1/phone-booking/book?brandName=Samsung&modelCode=S8&userName=lakshmi
+
+- Query Params: brandName, modelCode, userName
+
+2. Return Phone
+
+- http://localhost:8080/api/v1/phone-booking/return?bookingId=3ba4f150-054a-441b-96fb-ae50007637f2
+
+- Query Params: bookingId
+
+3. Check Phone Availability
+
+- http://localhost:8080/api/v1/phone-booking/check-availability?brandName=Samsung&modelCode=S8
+
+- Query Params: brandName, modelCode
+
+4. Get All Phones
+
+- http://localhost:8080/api/v1/phone-info/all
+
+5. Get One Phone
+
+- http://localhost:8080/api/v1/phone-info/one?brandName=Samsung&modelCode=S8
+
+- Query Params: brandName, modelCode
+
+6. Get All Devices Info
+
+- http://localhost:8080/api/v1/device-info/all
+
+7. Get One Device Info
+
+- http://localhost:8080/api/v1/device-info/one?phoneId=3ba4f150-054a-441b-96fb-ae50007637f2
+
+- Query Params: phoneId
+
+

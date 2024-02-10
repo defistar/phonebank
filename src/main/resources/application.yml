@@ -29,3 +29,8 @@ logging:
 fonoapi:
   url: https://fonoapi.freshpixl.com/v1/getdevice
   token: your_token_here
+
+springfox:
+  documentation:
+    swagger-ui:
+      enabled: true

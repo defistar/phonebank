@@ -7,20 +7,19 @@ import com.store.phonebank.dto.PhoneReturnResponseDto;
 import com.store.phonebank.services.booking.IPhoneBookingQueryService;
 import com.store.phonebank.services.booking.IPhoneBookingService;
 import com.store.phonebank.services.booking.IPhoneReturnService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
-
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/phone-booking")
-@Api(value = "Phone Booking", tags = {"Phone Booking"})
+@Tag(name = "Phone Booking", description = "Phone Booking API")
 public class PhoneBookingController {
 
     private final IPhoneBookingService phoneBookingService;
@@ -36,11 +35,11 @@ public class PhoneBookingController {
     }
 
     @PostMapping("/book")
-    @ApiOperation(value = "Book a phone")
+    @Operation(summary = "Book a phone")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully booked the phone"),
-            @ApiResponse(code = 400, message = "Invalid request"),
-            @ApiResponse(code = 500, message = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "Successfully booked the phone"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public Mono<ResponseEntity<PhoneBookingResponseDto>> bookPhone(@RequestParam String brandName, @RequestParam String modelCode, @RequestParam String userName) {
         PhoneBookingRequestDto phoneBookingRequestDto = PhoneBookingRequestDto.builder()
@@ -54,11 +53,11 @@ public class PhoneBookingController {
     }
 
     @PostMapping("/return")
-    @ApiOperation(value = "Return a booked phone")
+    @Operation(summary = "Return a booked phone")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully returned a booked phone"),
-            @ApiResponse(code = 400, message = "Invalid request"),
-            @ApiResponse(code = 500, message = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "Successfully returned a booked phone"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public Mono<ResponseEntity<PhoneReturnResponseDto>> returnPhone(@RequestParam String bookingId) {
         return phoneReturnService.returnBookedPhone(UUID.fromString(bookingId))
@@ -66,16 +65,15 @@ public class PhoneBookingController {
     }
 
     @GetMapping("/check-availability")
-    @ApiOperation(value = "check availability for the phone")
+    @Operation(summary = "check availability for the phone")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "get availability of a phone by brand-name and model-code"),
-            @ApiResponse(code = 500, message = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "get availability of a phone by brand-name and model-code"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public Mono<ResponseEntity<PhoneAvailabilityResponseDto>> checkAvailability(@RequestParam String brandName, @RequestParam String modelCode) {
         return phoneBookingQueryService.checkPhoneAvailability(brandName, modelCode)
                 .map(response -> new ResponseEntity<>(response, HttpStatus.OK))
                 .onErrorResume(e -> Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)));
     }
-
 
 }
