@@ -3,6 +3,7 @@ package com.store.phonebank.dto;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class DeviceInfoDto {
     @NotNull
-    private String id;
+    private UUID id;
 
     @NotNull
     private String brandName;

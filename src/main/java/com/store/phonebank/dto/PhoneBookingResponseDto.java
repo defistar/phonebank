@@ -4,6 +4,7 @@ import com.store.phonebank.config.BookingStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -12,8 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString
 public class PhoneBookingResponseDto {
-    private String phoneBookingId;
-    private String phoneEntityId;
+    private UUID phoneBookingId;
+    private UUID phoneEntityId;
     private String brandName;
     private String modelCode;
     private BookingStatus bookingStatus;

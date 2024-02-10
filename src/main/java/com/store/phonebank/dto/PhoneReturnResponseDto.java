@@ -3,6 +3,7 @@ package com.store.phonebank.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -11,8 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString
 public class PhoneReturnResponseDto {
-    private String phoneBookingId;
-    private String phoneEntityId;
+    private UUID phoneBookingId;
+    private UUID phoneEntityId;
     private String brandName;
     private String modelCode;
     private String availability;
@@ -22,7 +23,7 @@ public class PhoneReturnResponseDto {
     private String responseCode;
     private String errorMessage;
 
-    public PhoneReturnResponseDto(String phoneBookingId, String failed, String message) {
+    public PhoneReturnResponseDto(UUID phoneBookingId, String failed, String message) {
         this.phoneBookingId = phoneBookingId;
         this.returned = false;
         this.responseCode = failed;

@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @Service
 public class PhoneBookingQueryService implements IPhoneBookingQueryService {
 
@@ -30,7 +32,8 @@ public class PhoneBookingQueryService implements IPhoneBookingQueryService {
                     responseDto.setBrandName(phoneEntity.getBrandName());
                     responseDto.setModelCode(phoneEntity.getModelCode());
                     responseDto.setAvailability(phoneEntity.getAvailableCount() > 0 ? "Yes" : "No");
-                    return this.phoneBookingRepository.findTopByPhoneEntityIdAndIsReturnedOrderByBookingTimeDesc(phoneEntity.getId(), false)
+                    return this.phoneBookingRepository
+                            .findTopByPhoneEntityIdAndIsReturnedOrderByBookingTimeDesc(phoneEntity.getId(), false)
                             .doOnNext(phoneBooking -> {
                                 if (phoneBooking != null) {
                                     responseDto.setWhenLastBooked(phoneBooking.getBookingTime());
@@ -46,7 +49,7 @@ public class PhoneBookingQueryService implements IPhoneBookingQueryService {
                 .switchIfEmpty(Mono.just(new PhoneAvailabilityResponseDto()));
     }
 
-    public Mono<PhoneBookingDto> findCurrentActiveBookingDetails(String phoneEntityId) {
+    public Mono<PhoneBookingDto> findCurrentActiveBookingDetails(UUID phoneEntityId) {
         return phoneBookingRepository.findTopByPhoneEntityIdAndIsReturnedFalseOrderByBookingTimeDesc(phoneEntityId)
                 .flatMap(phoneBookingEntity -> {
                     if (phoneBookingEntity != null) {
@@ -57,7 +60,7 @@ public class PhoneBookingQueryService implements IPhoneBookingQueryService {
                 });
     }
 
-    public Mono<PhoneBookingDto> findLastBookingDetails(String phoneEntityId) {
+    public Mono<PhoneBookingDto> findLastBookingDetails(UUID phoneEntityId) {
         return phoneBookingRepository.findTopByPhoneEntityIdAndIsReturnedTrueOrderByBookingTimeDesc(phoneEntityId)
                 .flatMap(phoneBookingEntity -> {
                     if (phoneBookingEntity != null) {
@@ -68,7 +71,7 @@ public class PhoneBookingQueryService implements IPhoneBookingQueryService {
                 });
     }
 
-    public Mono<PhoneBookingDto> findCurrentActiveOrLastBookingDetails(String phoneEntityId) {
+    public Mono<PhoneBookingDto> findCurrentActiveOrLastBookingDetails(UUID phoneEntityId) {
         return phoneBookingRepository.findLastBookedOrReturnedPhoneByEntityId(phoneEntityId)
                 .flatMap(phoneBookingEntity -> {
                     if (phoneBookingEntity != null) {

@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @ToString
 public class PhoneDto {
     @NotNull
-    private String id;
+    private UUID id;
 
     @NotNull
     private String brandName;

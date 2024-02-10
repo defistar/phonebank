@@ -19,13 +19,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
 public class PhoneOnboardingSeeder implements CommandLineRunner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PhoneOnboardingSeeder.class);
+    private static final Logger logger = LoggerFactory.getLogger(PhoneOnboardingSeeder.class);
 
     private final PhoneRepository phoneRepository;
 
@@ -41,30 +40,12 @@ public class PhoneOnboardingSeeder implements CommandLineRunner {
 
     @PostConstruct
     public void init() {
-        LOGGER.info("Validating seed file path: {}", seedFilePath);
+        logger.info("Validating seed file path: {}", seedFilePath);
         Resource resource = resourceLoader.getResource(seedFilePath);
         if (!resource.exists()) {
             throw new IllegalArgumentException("Seed file does not exist: " + seedFilePath);
         }
     }
-
-//    public Mono<PhoneDto> savePhone(PhoneDto phoneDto) {
-//        PhoneEntity phoneEntity = toEntity(phoneDto);
-//
-//        return this.phoneRepository.findByBrandNameAndModelCode(phoneDto.getBrandName(), phoneDto.getModelCode())
-//                .flatMap(existingPhone -> {
-//                    phoneEntity.setId(existingPhone.getId()); // Ensure the ID is set for existing entities
-//                    return this.phoneRepository.save(phoneEntity);
-//                })
-//                .switchIfEmpty(Mono.defer(() -> {
-//                    phoneEntity.setId(UUID.randomUUID().toString()); // Set ID to a new UUID for new entities
-//                    if (phoneEntity.getCreatedAt() == null) {
-//                        phoneEntity.setCreatedAt(LocalDateTime.now());
-//                    }
-//                    return this.phoneRepository.insert(phoneEntity);
-//                }))
-//                .map(this::toDto);
-//    }
 
     private PhoneEntity toEntity(PhoneDto phoneDto) {
         PhoneEntity phoneEntity = new PhoneEntity();
@@ -72,11 +53,13 @@ public class PhoneOnboardingSeeder implements CommandLineRunner {
         phoneEntity.setBrandName(phoneDto.getBrandName());
         phoneEntity.setModelName(phoneDto.getModelName());
         phoneEntity.setModelCode(phoneDto.getModelCode());
+        phoneEntity.setPhoneCount(phoneDto.getPhoneCount());
+        phoneEntity.setAvailableCount(phoneDto.getAvailableCount());
         return phoneEntity;
     }
 
     public Mono<Long> runSeed() {
-        LOGGER.info("Seeding phone data from file: {}", seedFilePath);
+        logger.info("Seeding phone data from file: {}", seedFilePath);
         Resource resource = resourceLoader.getResource(seedFilePath);
         try {
             Stream<String> lines = new BufferedReader(new InputStreamReader(resource.getInputStream())).lines();
@@ -87,28 +70,28 @@ public class PhoneOnboardingSeeder implements CommandLineRunner {
                             .map(hasElement -> !hasElement)) // Filter out existing phones
                     .flatMap(phoneDto -> {
                         PhoneEntity phoneEntity = toEntity(phoneDto);
-                        phoneEntity.setId(UUID.randomUUID().toString()); // Set ID to a new UUID for new entities
                         if (phoneEntity.getCreatedAt() == null) {
                             phoneEntity.setCreatedAt(LocalDateTime.now());
                         }
-                        return this.phoneRepository.insert(phoneEntity).thenReturn(1L);
+                        logger.info("Saving phone data: {}", phoneEntity);
+                        return this.phoneRepository.save(phoneEntity).thenReturn(1L);
                     })
-                    .doOnError(e -> LOGGER.error("Error while saving phone data", e))
+                    .doOnError(e -> logger.error("Error while saving phone data", e))
                     .onErrorResume(e -> {
-                        LOGGER.error("Error occurred during seed loading, skipping this record", e);
+                        logger.error("Error occurred during seed loading, skipping this record", e);
                         return Mono.just(0L);
                     })
                     .retry(3)
                     .reduce(0L, Long::sum);
         } catch (IOException e) {
-            LOGGER.error("Error reading seed file", e);
+            logger.error("Error reading seed file", e);
             throw new RuntimeException("Error reading seed file", e);
         }
     }
 
     @Override
     public void run(String... args) throws Exception {
-        runSeed().subscribe(count -> LOGGER.info("Inserted {} records", count));
+        runSeed().subscribe(count -> logger.info("Inserted {} Phone records", count));
     }
 
     private PhoneDto lineToPhoneDto(String line) {
@@ -118,6 +101,7 @@ public class PhoneOnboardingSeeder implements CommandLineRunner {
         phoneDto.setModelName(parts[1]);
         phoneDto.setModelCode(parts[2]);
         phoneDto.setPhoneCount(Integer.parseInt(parts[3]));
+        phoneDto.setAvailableCount(Integer.parseInt(parts[3]));
         return phoneDto;
     }
 }

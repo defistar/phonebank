@@ -1,6 +1,5 @@
 package com.store.phonebank.entity;
 
-import jakarta.persistence.PrePersist;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,10 +24,10 @@ public class PhoneBookingEntity {
     @Id
     @Column("id")
     @NotNull
-    private String id;
+    private UUID id;
 
     @Column("phone_entity_id")
-    private String phoneEntityId;
+    private UUID phoneEntityId;
 
     @Column("user_name")
     private String userName;
@@ -46,11 +45,4 @@ public class PhoneBookingEntity {
     @LastModifiedDate
     @Column("updated_at")
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void prePersist() {
-        if (id == null) {
-            id = new UUID(0, 0).toString();
-        }
-    }
 }

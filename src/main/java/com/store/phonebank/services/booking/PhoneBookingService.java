@@ -17,7 +17,6 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 public class PhoneBookingService implements IPhoneBookingService {
@@ -50,12 +49,11 @@ public class PhoneBookingService implements IPhoneBookingService {
             return this.phoneRepository.save(phone)
                     .flatMap(updatedPhone -> {
                         PhoneBookingEntity phoneBooking = new PhoneBookingEntity();
-                        phoneBooking.setId(UUID.randomUUID().toString());
                         phoneBooking.setCreatedAt(LocalDateTime.now());
                         phoneBooking.setPhoneEntityId(updatedPhone.getId());
                         phoneBooking.setUserName(phoneBookingRequestDto.getUserName());
                         phoneBooking.setBookingTime(LocalDateTime.now());
-                        return this.phoneBookingRepository.insert(phoneBooking)
+                        return this.phoneBookingRepository.save(phoneBooking)
                                 .flatMap(phoneBookingSaved -> {
                                     PhoneBookingResponseDto responseDto = this.toBookingResponseDto(phoneBookingSaved, updatedPhone);
                                     responseDto.setBookingStatus(BookingStatus.SUCCESSFUL);
@@ -89,11 +87,13 @@ public class PhoneBookingService implements IPhoneBookingService {
     }
 
     private Mono<PhoneBookingResponseDto> handleDataAccessException(DataAccessException ex, PhoneBookingRequestDto phoneBookingRequestDto) {
+        logger.error("Error occurred while booking phone", ex);
         PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto(phoneBookingRequestDto.getBrandName(), phoneBookingRequestDto.getModelCode(), "Failed", ex.getMessage());
         return Mono.just(responseDto);
     }
 
     private Mono<PhoneBookingResponseDto> handleRuntimeException(RuntimeException ex, PhoneBookingRequestDto phoneBookingRequestDto) {
+        logger.error("Error occurred while booking phone", ex);
         PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto(phoneBookingRequestDto.getBrandName(), phoneBookingRequestDto.getModelCode(), "Failed", ex.getMessage());
         return Mono.just(responseDto);
     }

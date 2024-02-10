@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -40,7 +39,6 @@ public class DeviceInfoSeeder implements CommandLineRunner {
     public DeviceInfoSeeder(DeviceInfoRepository deviceInfoRepository) {
         this.deviceInfoRepository = deviceInfoRepository;
     }
-
 
     @PostConstruct
     public void init() {
@@ -86,11 +84,10 @@ public class DeviceInfoSeeder implements CommandLineRunner {
                     return this.deviceInfoRepository.save(deviceInfoEntity);
                 })
                 .switchIfEmpty(Mono.defer(() -> {
-                    deviceInfoEntity.setId(UUID.randomUUID().toString()); // Set ID to a new UUID for new entities
                     if (deviceInfoEntity.getCreatedAt() == null) {
                         deviceInfoEntity.setCreatedAt(LocalDateTime.now());
                     }
-                    return this.deviceInfoRepository.insert(deviceInfoEntity);
+                    return this.deviceInfoRepository.save(deviceInfoEntity);
                 }))
                 .map(this::toDto);
     }
