@@ -1,5 +1,8 @@
+CREATE
+EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE IF NOT EXISTS phone (
-    id VARCHAR(255) PRIMARY KEY,
+    id  uuid DEFAULT uuid_generate_v4() primary key,
     brand_name VARCHAR(255) NOT NULL,
     model_name VARCHAR(255) NOT NULL,
     model_code VARCHAR(255) NOT NULL,
@@ -13,7 +16,7 @@ CREATE TABLE IF NOT EXISTS phone (
 );
 
 CREATE TABLE IF NOT EXISTS phone_booking (
-    id VARCHAR(255) PRIMARY KEY,
+    id uuid DEFAULT uuid_generate_v4() primary key,
     phone_entity_id VARCHAR(255),
     user_name VARCHAR(255),
     is_returned BOOLEAN,
@@ -27,7 +30,7 @@ CREATE INDEX IF NOT EXISTS idx_phonebooking_id_isreturned ON phone_booking(id, i
 CREATE INDEX IF NOT EXISTS idx_phonebooking_bookingtime ON phone_booking(booking_time);
 
 CREATE TABLE device_info (
-    id VARCHAR(255) PRIMARY KEY,
+    id uuid DEFAULT uuid_generate_v4() primary key,
     brand_name VARCHAR(255) NOT NULL,
     model_code VARCHAR(255) NOT NULL,
     technology TEXT,

@@ -41,7 +41,6 @@ public class DeviceInfoSeeder implements CommandLineRunner {
         this.deviceInfoRepository = deviceInfoRepository;
     }
 
-
     @PostConstruct
     public void init() {
         LOGGER.info("Validating seed file path: {}", deviceInfoSeedFilePath);
@@ -86,11 +85,10 @@ public class DeviceInfoSeeder implements CommandLineRunner {
                     return this.deviceInfoRepository.save(deviceInfoEntity);
                 })
                 .switchIfEmpty(Mono.defer(() -> {
-                    deviceInfoEntity.setId(UUID.randomUUID().toString()); // Set ID to a new UUID for new entities
                     if (deviceInfoEntity.getCreatedAt() == null) {
                         deviceInfoEntity.setCreatedAt(LocalDateTime.now());
                     }
-                    return this.deviceInfoRepository.insert(deviceInfoEntity);
+                    return this.deviceInfoRepository.save(deviceInfoEntity);
                 }))
                 .map(this::toDto);
     }

@@ -15,6 +15,7 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class PhoneReturnService implements IPhoneReturnService {
@@ -31,7 +32,7 @@ public class PhoneReturnService implements IPhoneReturnService {
         this.transactionalOperator = transactionalOperator;
     }
 
-    public Mono<ResponseEntity<PhoneReturnResponseDto>> returnBookedPhone(String bookingId) {
+    public Mono<ResponseEntity<PhoneReturnResponseDto>> returnBookedPhone(UUID bookingId) {
         logger.info("Returning phone with booking id: " + bookingId);
         return this.phoneBookingRepository.findById(bookingId)
                 .switchIfEmpty(handleNonExistentBooking(bookingId))
@@ -44,11 +45,11 @@ public class PhoneReturnService implements IPhoneReturnService {
                 .as(transactionalOperator::transactional); // apply transactional operator;
     }
 
-    private Mono<PhoneBookingEntity> handleNonExistentBooking(String bookingId) {
+    private Mono<PhoneBookingEntity> handleNonExistentBooking(UUID bookingId) {
         return Mono.error(new RuntimeException("Phone booking with id " + bookingId + " does not exist"));
     }
 
-    private Mono<PhoneBookingEntity> handleAlreadyReturnedBooking(String bookingId) {
+    private Mono<PhoneBookingEntity> handleAlreadyReturnedBooking(UUID bookingId) {
         return Mono.error(new RuntimeException("Phone booking with id " + bookingId + " has already been returned"));
     }
 
@@ -65,11 +66,11 @@ public class PhoneReturnService implements IPhoneReturnService {
                 );
     }
 
-    private Mono<ResponseEntity<PhoneReturnResponseDto>> handleDataAccessException(DataAccessException ex, String bookingId) {
+    private Mono<ResponseEntity<PhoneReturnResponseDto>> handleDataAccessException(DataAccessException ex, UUID bookingId) {
         return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new PhoneReturnResponseDto(bookingId, "Failed", ex.getMessage())));
     }
 
-    private Mono<ResponseEntity<PhoneReturnResponseDto>> handleRuntimeException(RuntimeException ex, String bookingId) {
+    private Mono<ResponseEntity<PhoneReturnResponseDto>> handleRuntimeException(RuntimeException ex, UUID bookingId) {
         return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new PhoneReturnResponseDto(bookingId, "Failed", ex.getMessage())));
     }
 

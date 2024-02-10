@@ -19,11 +19,11 @@ import java.util.UUID;
 @ToString
 @Data
 @Table("device_info")
-public class DeviceInfoEntity implements Persistable<String> {
+public class DeviceInfoEntity {
     @Id
     @Column("id")
     @NotNull
-    private String id;
+    private UUID id;
 
     @NotNull
     @Column("brand_name")
@@ -53,16 +53,8 @@ public class DeviceInfoEntity implements Persistable<String> {
     @Column("updated_at")
     private LocalDateTime updatedAt;
 
-    @Override
-    public boolean isNew() {
-        return id == null;
-    }
-
-    @PrePersist
-    public void prePersist() {
-        if (id == null) {
-            System.out.println("id is null");
-            id = new UUID(0, 0).toString();
-        }
-    }
+//    @Override
+//    public boolean isNew() {
+//        return id == null;
+//    }
 }

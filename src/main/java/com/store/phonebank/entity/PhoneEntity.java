@@ -1,6 +1,5 @@
 package com.store.phonebank.entity;
 
-import jakarta.persistence.PrePersist;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -22,11 +21,13 @@ import java.util.UUID;
 @ToString
 @Data
 @Table("phone")
-public class PhoneEntity implements Persistable<String> {
+public class PhoneEntity {
+
     @Id
     @Column("id")
     @NotNull
-    private String id;
+    private UUID id;
+
 
     @NotNull
     @Column("brand_name")
@@ -59,15 +60,13 @@ public class PhoneEntity implements Persistable<String> {
     @Column("updated_at")
     private LocalDateTime updatedAt;
 
-    @Override
-    public boolean isNew() {
-        return id == null;
-    }
-
-    @PrePersist
-    public void prePersist() {
-        if (id == null) {
-            id = new UUID(0, 0).toString();
-        }
-    }
+//    @Override
+//    public UUID getId() {
+//        return id;
+//    }
+//
+//    @Override
+//    public boolean isNew() {
+//        return id == null;
+//    }
 }

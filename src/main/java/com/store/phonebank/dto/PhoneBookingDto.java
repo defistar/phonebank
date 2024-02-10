@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -13,9 +14,9 @@ import java.time.LocalDateTime;
 @ToString
 public class PhoneBookingDto {
 
-    private String id;
+    private UUID id;
 
-    private String phoneEntityId;
+    private UUID phoneEntityId;
 
     private String userName;
 

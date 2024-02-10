@@ -3,6 +3,7 @@ package com.store.phonebank.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString
 public class PhoneAvailabilityResponseDto {
-    private String phoneEntityId;
+    private UUID phoneEntityId;
     private String brandName;
     private String modelCode;
     private String availability;

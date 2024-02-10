@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
+import java.util.UUID;
 @Service
 public class PhoneBookingService implements IPhoneBookingService {
     private static final Logger logger = LoggerFactory.getLogger(PhoneBookingService.class);
@@ -45,17 +45,19 @@ public class PhoneBookingService implements IPhoneBookingService {
     }
 
     private Mono<PhoneBookingResponseDto> processPhoneBooking(PhoneEntity phone, PhoneBookingRequestDto phoneBookingRequestDto) {
+        logger.info("Processing phone booking for phone: " + phone);
         if (phone.getAvailableCount() > 0) {
+            logger.info("Phone available for booking: " + phone);
             phone.setAvailableCount(phone.getAvailableCount() - 1);
             return this.phoneRepository.save(phone)
                     .flatMap(updatedPhone -> {
+                        logger.info("Phone updated: " + updatedPhone);
                         PhoneBookingEntity phoneBooking = new PhoneBookingEntity();
-                        phoneBooking.setId(UUID.randomUUID().toString());
                         phoneBooking.setCreatedAt(LocalDateTime.now());
                         phoneBooking.setPhoneEntityId(updatedPhone.getId());
                         phoneBooking.setUserName(phoneBookingRequestDto.getUserName());
                         phoneBooking.setBookingTime(LocalDateTime.now());
-                        return this.phoneBookingRepository.insert(phoneBooking)
+                        return this.phoneBookingRepository.save(phoneBooking)
                                 .flatMap(phoneBookingSaved -> {
                                     PhoneBookingResponseDto responseDto = this.toBookingResponseDto(phoneBookingSaved, updatedPhone);
                                     responseDto.setBookingStatus(BookingStatus.SUCCESSFUL);
@@ -63,7 +65,8 @@ public class PhoneBookingService implements IPhoneBookingService {
                                 });
                     });
         } else {
-            return this.phoneBookingRepository.findTopByPhoneEntityIdAndIsReturnedOrderByBookingTimeDesc(phone.getId(), false)
+            logger.info("about to query phonebooking for phone with id: " + phone.getId());
+            return this.phoneBookingRepository.findTopByPhoneEntityIdAndIsReturnedOrderByBookingTimeDesc(""+phone.getId(), false)
                     .map(lastBooking -> {
                         PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto();
                         responseDto.setPhoneEntityId(phone.getId());
@@ -89,11 +92,13 @@ public class PhoneBookingService implements IPhoneBookingService {
     }
 
     private Mono<PhoneBookingResponseDto> handleDataAccessException(DataAccessException ex, PhoneBookingRequestDto phoneBookingRequestDto) {
+        logger.error("Error occurred while booking phone", ex);
         PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto(phoneBookingRequestDto.getBrandName(), phoneBookingRequestDto.getModelCode(), "Failed", ex.getMessage());
         return Mono.just(responseDto);
     }
 
     private Mono<PhoneBookingResponseDto> handleRuntimeException(RuntimeException ex, PhoneBookingRequestDto phoneBookingRequestDto) {
+        logger.error("Error occurred while booking phone", ex);
         PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto(phoneBookingRequestDto.getBrandName(), phoneBookingRequestDto.getModelCode(), "Failed", ex.getMessage());
         return Mono.just(responseDto);
     }

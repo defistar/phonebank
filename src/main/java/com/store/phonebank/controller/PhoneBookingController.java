@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/phone-booking")
 @Api(value = "Phone Booking", tags = {"Phone Booking"})
@@ -59,7 +61,7 @@ public class PhoneBookingController {
             @ApiResponse(code = 500, message = "Internal server error")
     })
     public Mono<ResponseEntity<PhoneReturnResponseDto>> returnPhone(@RequestParam String bookingId) {
-        return phoneReturnService.returnBookedPhone(bookingId)
+        return phoneReturnService.returnBookedPhone(UUID.fromString(bookingId))
                 .onErrorResume(e -> Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)));
     }
 
