@@ -17,12 +17,10 @@ public class DeviceInfoService {
 
     @Cacheable("deviceInfo")
     public Mono<DeviceInfoEntity> getDeviceInfo(String brandName, String modelCode) {
-        // code to call database and fetch device info
         return deviceInfoRepository.findByBrandNameAndModelCode(brandName, modelCode);
     }
 
     public Mono<DeviceInfoEntity> updateDeviceInfo(DeviceInfoEntity deviceInfoEntity) {
-        // code to update device info in the database
         Mono<DeviceInfoEntity> updatedEntity = deviceInfoRepository.save(deviceInfoEntity);
         clearCache();
         return updatedEntity;

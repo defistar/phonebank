@@ -33,7 +33,7 @@ public class PhoneDto {
 
     private DeviceInfoDto deviceInfo;
 
-    private String bookedBy;
+    private String lastBookedBy;
 
-    private LocalDateTime bookingTime;
+    private LocalDateTime lastBookedAt;
 }
