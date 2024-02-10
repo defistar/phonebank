@@ -1,9 +1,21 @@
-# PhoneBank
+## Reflections
 
-## Phone Background
+• What aspect of this exercise did you find most interesting?
+- The most interesting part was to design reactive approach to deal with booking and other service features
+- The application is designed to handle multiple requests and the data is handled in a reactive way
+- I wish to implement same using kotlin, spring-3 and coroutines to make Async calls faster using virtual threads
+- Using Kotlin co-routine async, suspend and await features, we can make the application more efficient and simpler
+
+• What did you find most cumbersome?
+- The most cumbersome part was to handle the seed data and the database setup
+- Testing of reactive services was also a bit cumbersome. I wish i could have added integration tests
+- I would love to add cucumber based step definitions to test scenarios
+
+## PhoneBank Application Background
 PhoneBank is a simple application that allows you to manage Phone bookings and get device Info
 PhoneBank contains a list of Phones available for rental via booking by Software Testers in the team
 Testers can book a specific phone and return the phone after use
+
 
 ## Phone Categories
 Each Phone is a device which can operate on multiple Bands (2G/2G/4G/5G) and has a specific OS (Android/iOS)
@@ -173,14 +185,3 @@ http://localhost:8080/api/v1/phone-booking/book?brandName=Samsung&modelCode=S8&u
 
 - Query Params: phoneId
 
-
-## Reflections
-
-• What aspect of this exercise did you find most interesting?
-- The most interesting part was to design reactive approach to deal with booking and other service features
-- The application is designed to handle multiple requests and the data is handled in a reactive way
-
-• What did you find most cumbersome?
-- The most cumbersome part was to handle the seed data and the database setup
-- Testing of reactive services was also a bit cumbersome. I wish i could have added integration tests
-- I would love to add cucumber based step definitions to test scenarios
