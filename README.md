@@ -174,3 +174,13 @@ http://localhost:8080/api/v1/phone-booking/book?brandName=Samsung&modelCode=S8&u
 - Query Params: phoneId
 
 
+## Reflections
+
+• What aspect of this exercise did you find most interesting?
+- The most interesting part was to design reactive approach to deal with booking and other service features
+- The application is designed to handle multiple requests and the data is handled in a reactive way
+
+• What did you find most cumbersome?
+- The most cumbersome part was to handle the seed data and the database setup
+- Testing of reactive services was also a bit cumbersome. I wish i could have added integration tests
+- I would love to add cucumber based step definitions to test scenarios
