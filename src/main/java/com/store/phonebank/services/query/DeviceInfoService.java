@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-public class DeviceInfoService {
+public class DeviceInfoService implements IDeviceInfoService {
     private final DeviceInfoRepository deviceInfoRepository;
 
     public DeviceInfoService(DeviceInfoRepository deviceInfoRepository) {
