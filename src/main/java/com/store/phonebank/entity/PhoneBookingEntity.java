@@ -1,6 +1,5 @@
 package com.store.phonebank.entity;
 
-import jakarta.persistence.PrePersist;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

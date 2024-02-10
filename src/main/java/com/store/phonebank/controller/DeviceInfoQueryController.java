@@ -1,9 +1,7 @@
 package com.store.phonebank.controller;
 
-import com.store.phonebank.dto.PhoneDto;
 import com.store.phonebank.entity.DeviceInfoEntity;
 import com.store.phonebank.repository.DeviceInfoRepository;
-import com.store.phonebank.services.query.PhoneInfoQueryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;

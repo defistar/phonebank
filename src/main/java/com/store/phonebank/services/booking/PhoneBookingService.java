@@ -17,8 +17,7 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
-import java.util.UUID;
+
 @Service
 public class PhoneBookingService implements IPhoneBookingService {
     private static final Logger logger = LoggerFactory.getLogger(PhoneBookingService.class);
@@ -45,13 +44,10 @@ public class PhoneBookingService implements IPhoneBookingService {
     }
 
     private Mono<PhoneBookingResponseDto> processPhoneBooking(PhoneEntity phone, PhoneBookingRequestDto phoneBookingRequestDto) {
-        logger.info("Processing phone booking for phone: " + phone);
         if (phone.getAvailableCount() > 0) {
-            logger.info("Phone available for booking: " + phone);
             phone.setAvailableCount(phone.getAvailableCount() - 1);
             return this.phoneRepository.save(phone)
                     .flatMap(updatedPhone -> {
-                        logger.info("Phone updated: " + updatedPhone);
                         PhoneBookingEntity phoneBooking = new PhoneBookingEntity();
                         phoneBooking.setCreatedAt(LocalDateTime.now());
                         phoneBooking.setPhoneEntityId(updatedPhone.getId());
@@ -65,7 +61,6 @@ public class PhoneBookingService implements IPhoneBookingService {
                                 });
                     });
         } else {
-            logger.info("about to query phonebooking for phone with id: " + phone.getId());
             return this.phoneBookingRepository.findTopByPhoneEntityIdAndIsReturnedOrderByBookingTimeDesc(phone.getId(), false)
                     .map(lastBooking -> {
                         PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto();

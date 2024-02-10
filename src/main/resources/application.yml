@@ -5,7 +5,7 @@ spring:
     url: r2dbc:postgresql://localhost:5435/phonebank
     username: admin
     password: password
-    driver-class-name:  io.r2dbc:r2dbc-postgresql
+    driver-class-name: io.r2dbc:r2dbc-postgresql
   sql:
     init:
       platform: postgres

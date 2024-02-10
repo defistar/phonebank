@@ -17,12 +17,12 @@ CREATE TABLE IF NOT EXISTS phone (
 
 CREATE TABLE IF NOT EXISTS phone_booking (
     id uuid DEFAULT uuid_generate_v4() primary key,
-    phone_entity_id VARCHAR(255),
+    phone_entity_id uuid,
     user_name VARCHAR(255),
     is_returned BOOLEAN,
     booking_time TIMESTAMP,
     created_at TIMESTAMP,
-    updated_at TIMESTAMP,
+    updated_at TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_phonebooking_username ON phone_booking(user_name);
