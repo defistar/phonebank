@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
 @Service
+//@Profile("!test")
 public class PhoneOnboardingSeeder implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(PhoneOnboardingSeeder.class);
