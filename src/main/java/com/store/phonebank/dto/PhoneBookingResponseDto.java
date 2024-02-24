@@ -22,13 +22,11 @@ public class PhoneBookingResponseDto {
     private int phoneCount;
     private LocalDateTime lastBookedAt;
     private String lastBookedUser;
-    private String responseCode;
     private String errorMessage;
 
-    public PhoneBookingResponseDto(String brandName, String modelCode, String failed, String message) {
+    public PhoneBookingResponseDto(String brandName, String modelCode, String message) {
         this.brandName = brandName;
         this.modelCode = modelCode;
-        this.responseCode = failed;
         this.errorMessage = message;
     }
 }

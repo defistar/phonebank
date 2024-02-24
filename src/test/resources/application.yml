@@ -9,3 +9,20 @@ seed:
 fonoapi:
   url: https://fonoapi.freshpixl.com/v1/getdevice
   token: your_token_here
+
+resilience4j.circuitbreaker:
+  instances:
+    bookPhone:
+      slidingWindowSize: 50
+      permittedNumberOfCallsInHalfOpenState: 10
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: PT1S
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+    returnPhone:
+      slidingWindowSize: 50
+      permittedNumberOfCallsInHalfOpenState: 5
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: PT1S
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10

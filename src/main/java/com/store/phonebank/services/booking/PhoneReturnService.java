@@ -40,6 +40,7 @@ public class PhoneReturnService implements IPhoneReturnService {
                 .switchIfEmpty(handleAlreadyReturnedBooking(bookingId))
                 .flatMap(this::processPhoneReturn)
                 .map(ResponseEntity::ok)
+                .doOnNext(responseDto -> logger.info("Return value: " + responseDto)) // Log the return value
                 .onErrorResume(DataAccessException.class, ex -> handleDataAccessException(ex, bookingId))
                 .onErrorResume(RuntimeException.class, ex -> handleRuntimeException(ex, bookingId))
                 .as(transactionalOperator::transactional); // apply transactional operator;

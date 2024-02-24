@@ -1,5 +1,6 @@
 package com.store.phonebank.controller;
 
+import com.store.phonebank.config.BookingStatus;
 import com.store.phonebank.dto.PhoneAvailabilityResponseDto;
 import com.store.phonebank.dto.PhoneBookingRequestDto;
 import com.store.phonebank.dto.PhoneBookingResponseDto;
@@ -7,6 +8,9 @@ import com.store.phonebank.dto.PhoneReturnResponseDto;
 import com.store.phonebank.services.booking.IPhoneBookingQueryService;
 import com.store.phonebank.services.booking.IPhoneBookingService;
 import com.store.phonebank.services.booking.IPhoneReturnService;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,10 +32,13 @@ public class PhoneBookingController {
 
     private final IPhoneBookingQueryService phoneBookingQueryService;
 
-    public PhoneBookingController(IPhoneBookingService phoneBookingService, IPhoneReturnService phoneReturnService, IPhoneBookingQueryService phoneBookingQueryService) {
+    private final CircuitBreakerRegistry circuitBreakerRegistry;
+
+    public PhoneBookingController(IPhoneBookingService phoneBookingService, IPhoneReturnService phoneReturnService, IPhoneBookingQueryService phoneBookingQueryService, CircuitBreakerRegistry circuitBreakerRegistry) {
         this.phoneBookingService = phoneBookingService;
         this.phoneReturnService = phoneReturnService;
         this.phoneBookingQueryService = phoneBookingQueryService;
+        this.circuitBreakerRegistry = circuitBreakerRegistry;
     }
 
     @PostMapping("/book")
@@ -48,8 +55,19 @@ public class PhoneBookingController {
                 .userName(userName)
                 .build();
 
+        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("bookPhone");
         return phoneBookingService.bookPhone(phoneBookingRequestDto)
-                .onErrorResume(e -> Mono.just(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)));
+                .transform(CircuitBreakerOperator.of(circuitBreaker))
+                .onErrorResume(io.github.resilience4j.circuitbreaker.CallNotPermittedException.class, e -> {
+                    PhoneBookingResponseDto errorResponseDto = new PhoneBookingResponseDto();
+                    errorResponseDto.setBookingStatus(BookingStatus.FAILED_DUE_TO_CIRCUIT_BREAKER);
+                    return Mono.just(new ResponseEntity<>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR));
+                })
+                .onErrorResume(e -> {
+                    PhoneBookingResponseDto errorResponseDto = new PhoneBookingResponseDto();
+                    errorResponseDto.setBookingStatus(BookingStatus.FAILED_PHONE_NOT_AVAILABLE);
+                    return Mono.just(new ResponseEntity<>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR));
+                });
     }
 
     @PostMapping("/return")

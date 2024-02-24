@@ -88,13 +88,13 @@ public class PhoneBookingService implements IPhoneBookingService {
 
     private Mono<PhoneBookingResponseDto> handleDataAccessException(DataAccessException ex, PhoneBookingRequestDto phoneBookingRequestDto) {
         logger.error("Error occurred while booking phone", ex);
-        PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto(phoneBookingRequestDto.getBrandName(), phoneBookingRequestDto.getModelCode(), "Failed", ex.getMessage());
+        PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto(phoneBookingRequestDto.getBrandName(), phoneBookingRequestDto.getModelCode(),ex.getMessage());
         return Mono.just(responseDto);
     }
 
     private Mono<PhoneBookingResponseDto> handleRuntimeException(RuntimeException ex, PhoneBookingRequestDto phoneBookingRequestDto) {
         logger.error("Error occurred while booking phone", ex);
-        PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto(phoneBookingRequestDto.getBrandName(), phoneBookingRequestDto.getModelCode(), "Failed", ex.getMessage());
+        PhoneBookingResponseDto responseDto = new PhoneBookingResponseDto(phoneBookingRequestDto.getBrandName(), phoneBookingRequestDto.getModelCode(), ex.getMessage());
         return Mono.just(responseDto);
     }
 

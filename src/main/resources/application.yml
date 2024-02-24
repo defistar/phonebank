@@ -22,6 +22,23 @@ seed:
   phone-data-file-path: classpath:Phone-Data.csv
   device-info-file-path: classpath:device-info.csv
 
+resilience4j.circuitbreaker:
+  instances:
+    bookPhone:
+      slidingWindowSize: 100
+      permittedNumberOfCallsInHalfOpenState: 10
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: PT60S
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+    returnPhone:
+      slidingWindowSize: 50
+      permittedNumberOfCallsInHalfOpenState: 5
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: PT30S
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+
 logging:
   level:
     com.store.phonebank: DEBUG
@@ -29,6 +46,7 @@ logging:
 fonoapi:
   url: https://fonoapi.freshpixl.com/v1/getdevice
   token: your_token_here
+
 
 springfox:
   documentation:
