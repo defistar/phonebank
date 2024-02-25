@@ -20,7 +20,7 @@ public class LoggingConfig {
         configurator.setContext(context);
         context.reset();
         try {
-            configurator.doConfigure(new ClassPathResource("logback.yml").getInputStream());
+            configurator.doConfigure(new ClassPathResource("logback.xml").getInputStream());
         } catch (JoranException | IOException e) {
             e.printStackTrace();
         }

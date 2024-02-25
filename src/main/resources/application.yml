@@ -25,17 +25,21 @@ seed:
 resilience4j.circuitbreaker:
   instances:
     bookPhone:
-      slidingWindowSize: 100
-      permittedNumberOfCallsInHalfOpenState: 10
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 5
+      permittedNumberOfCallsInHalfOpenState: 3
       automaticTransitionFromOpenToHalfOpenEnabled: true
-      waitDurationInOpenState: PT1S
+      waitDurationInOpenState: 5s
       failureRateThreshold: 50
       eventConsumerBufferSize: 10
     returnPhone:
-      slidingWindowSize: 50
-      permittedNumberOfCallsInHalfOpenState: 5
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 5
+      permittedNumberOfCallsInHalfOpenState: 3
       automaticTransitionFromOpenToHalfOpenEnabled: true
-      waitDurationInOpenState: PT1S
+      waitDurationInOpenState: 5s
       failureRateThreshold: 50
       eventConsumerBufferSize: 10
 

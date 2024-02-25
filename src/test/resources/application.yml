@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: test
   datasource:
     url: r2dbc:tc:postgresql:13:///integration-tests-db
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
@@ -26,3 +28,4 @@ resilience4j.circuitbreaker:
       waitDurationInOpenState: PT3S
       failureRateThreshold: 50
       eventConsumerBufferSize: 10
+

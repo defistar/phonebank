@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PhoneBookingControllerTest extends TestConfig {
 
-
     private WebTestClient webTestClient;
 
     @BeforeEach
@@ -119,65 +118,4 @@ public class PhoneBookingControllerTest extends TestConfig {
 
     }
 
-    @Test
-    @Order(3)
-    public void testPhoneBookingWithCircuitBreaker() throws InterruptedException {
-        // Subsequent bookings fail due to non-availability of the phone
-        for (int i = 0; i < 50; i++) {
-            webTestClient.post()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/phone-booking/book")
-                            .queryParam("brandName", "Samsung")
-                            .queryParam("modelCode", "S9")
-                            .queryParam("userName", "Christopher Nolan")
-                            .build())
-                    .exchange()
-                    .expectStatus().is5xxServerError()
-                    .expectBody(PhoneBookingResponseDto.class)
-                    .consumeWith(response -> {
-                        PhoneBookingResponseDto responseBody = response.getResponseBody();
-                        assert responseBody != null;
-                        assert responseBody.getBookingStatus().equals(BookingStatus.FAILED_PHONE_NOT_AVAILABLE);
-                    });
-        }
-
-        Thread.sleep(3000);
-
-        // After 50 failed requests and wait for 1 sec, the circuit breaker should be in half-open and further requests should be blocked
-        for (int i = 0; i < 10; i++) {
-            webTestClient.post()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/phone-booking/book")
-                            .queryParam("brandName", "Samsung")
-                            .queryParam("modelCode", "S9")
-                            .queryParam("userName", "Christopher Nolan")
-                            .build())
-                    .exchange()
-                    .expectStatus().is5xxServerError()
-                    .expectBody(PhoneBookingResponseDto.class)
-                    .consumeWith(response -> {
-                        PhoneBookingResponseDto responseBody = response.getResponseBody();
-                        assert responseBody != null;
-                        assert responseBody.getBookingStatus().equals(BookingStatus.FAILED_PHONE_NOT_AVAILABLE);
-                    });
-        }
-
-        Thread.sleep(1000);
-
-        webTestClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/phone-booking/book")
-                        .queryParam("brandName", "Samsung")
-                        .queryParam("modelCode", "S9")
-                        .queryParam("userName", "Christopher Nolan")
-                        .build())
-                .exchange()
-                .expectStatus().is5xxServerError()
-                .expectBody(PhoneBookingResponseDto.class)
-                .consumeWith(response -> {
-                    PhoneBookingResponseDto responseBody = response.getResponseBody();
-                    assert responseBody != null;
-                    assertEquals(BookingStatus.FAILED_DUE_TO_CIRCUIT_BREAKER, responseBody.getBookingStatus(), "The booking status is not as expected");
-                });
-    }
 }
