@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -140,9 +141,29 @@ public class PhoneBookingControllerTest extends TestConfig {
                     });
         }
 
-        Thread.sleep(4000);
+        Thread.sleep(3000);
 
-        // After 50 failed requests, the circuit breaker should open and further requests should be blocked
+        // After 50 failed requests and wait for 1 sec, the circuit breaker should be in half-open and further requests should be blocked
+        for (int i = 0; i < 10; i++) {
+            webTestClient.post()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/phone-booking/book")
+                            .queryParam("brandName", "Samsung")
+                            .queryParam("modelCode", "S9")
+                            .queryParam("userName", "Christopher Nolan")
+                            .build())
+                    .exchange()
+                    .expectStatus().is5xxServerError()
+                    .expectBody(PhoneBookingResponseDto.class)
+                    .consumeWith(response -> {
+                        PhoneBookingResponseDto responseBody = response.getResponseBody();
+                        assert responseBody != null;
+                        assert responseBody.getBookingStatus().equals(BookingStatus.FAILED_PHONE_NOT_AVAILABLE);
+                    });
+        }
+
+        Thread.sleep(1000);
+
         webTestClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path("/phone-booking/book")
@@ -156,7 +177,7 @@ public class PhoneBookingControllerTest extends TestConfig {
                 .consumeWith(response -> {
                     PhoneBookingResponseDto responseBody = response.getResponseBody();
                     assert responseBody != null;
-                    assert responseBody.getBookingStatus().equals(BookingStatus.FAILED_DUE_TO_CIRCUIT_BREAKER);
+                    assertEquals(BookingStatus.FAILED_DUE_TO_CIRCUIT_BREAKER, responseBody.getBookingStatus(), "The booking status is not as expected");
                 });
     }
 }

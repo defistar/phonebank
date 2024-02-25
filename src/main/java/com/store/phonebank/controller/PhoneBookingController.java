@@ -8,9 +8,12 @@ import com.store.phonebank.dto.PhoneReturnResponseDto;
 import com.store.phonebank.services.booking.IPhoneBookingQueryService;
 import com.store.phonebank.services.booking.IPhoneBookingService;
 import com.store.phonebank.services.booking.IPhoneReturnService;
+import com.store.phonebank.services.booking.PhoneBookingService;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/phone-booking")
 @Tag(name = "Phone Booking", description = "Phone Booking API")
 public class PhoneBookingController {
+    private static final Logger logger = LoggerFactory.getLogger(PhoneBookingController.class);
 
     private final IPhoneBookingService phoneBookingService;
 
@@ -59,6 +63,7 @@ public class PhoneBookingController {
         return phoneBookingService.bookPhone(phoneBookingRequestDto)
                 .transform(CircuitBreakerOperator.of(circuitBreaker))
                 .onErrorResume(io.github.resilience4j.circuitbreaker.CallNotPermittedException.class, e -> {
+                    logger.info("Circuit breaker is open for bookPhone");
                     PhoneBookingResponseDto errorResponseDto = new PhoneBookingResponseDto();
                     errorResponseDto.setBookingStatus(BookingStatus.FAILED_DUE_TO_CIRCUIT_BREAKER);
                     return Mono.just(new ResponseEntity<>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR));

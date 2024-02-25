@@ -16,13 +16,13 @@ resilience4j.circuitbreaker:
       slidingWindowSize: 50
       permittedNumberOfCallsInHalfOpenState: 10
       automaticTransitionFromOpenToHalfOpenEnabled: true
-      waitDurationInOpenState: PT1S
+      waitDurationInOpenState: PT3S
       failureRateThreshold: 50
       eventConsumerBufferSize: 10
     returnPhone:
       slidingWindowSize: 50
       permittedNumberOfCallsInHalfOpenState: 5
       automaticTransitionFromOpenToHalfOpenEnabled: true
-      waitDurationInOpenState: PT1S
+      waitDurationInOpenState: PT3S
       failureRateThreshold: 50
       eventConsumerBufferSize: 10
